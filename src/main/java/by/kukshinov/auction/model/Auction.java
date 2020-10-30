@@ -25,14 +25,17 @@ public class Auction {
     }
 
     public static Auction getInstance() {
-	   if (instance == null) {
-		  LOCKER.lock();
-		  Auction localInstance;
-		  if (instance == null) {
-			 localInstance = new Auction();
-			 instance = localInstance;
+	  if (instance == null) {
+		  try {
+			 LOCKER.lock();
+			 Auction localInstance;
+			 if (instance == null) {
+				localInstance = new Auction();
+				instance = localInstance;
+			 }
+		  } finally {
+			 LOCKER.unlock();
 		  }
-		  LOCKER.unlock();
 	   }
 	   return instance;
     }
