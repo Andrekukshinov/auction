@@ -20,14 +20,13 @@ public class ParticipantFileDataReaderTest {
 
     @Test
     public void testReadDataShouldReadDataAndReturnParticipantsList() throws DataException {
-	   ObjectMapper mapper = new ObjectMapper();
 	   Participant firstParticipant = new Participant(FIRST_PARTICIPANT_ID,
 			 FIRST_NAME);
 	   Participant secondParticipant = new Participant(SECOND_PARTICIPANT_ID,
 			 SECOND_NAME);
 	   List<Participant> expectedParticipants = Arrays
 			 .asList(firstParticipant, secondParticipant);
-	   ParticipantFileDataReader itemDataReader = new ParticipantFileDataReader(mapper);
+	   ParticipantFileDataReader itemDataReader = new ParticipantFileDataReader();
 	   List<Participant> items = itemDataReader.readData(TEST_JSON_PARTICIPANTS);
 	   Assert.assertEquals(items, expectedParticipants);
     }

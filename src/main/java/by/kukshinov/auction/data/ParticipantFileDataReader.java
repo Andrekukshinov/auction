@@ -10,17 +10,13 @@ import java.util.List;
 
 public class ParticipantFileDataReader implements FileDataReader<Participant> {
 
-    private final ObjectMapper mapper;
-
-    public ParticipantFileDataReader(ObjectMapper mapper) {
-	   this.mapper = mapper;
-    }
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public List<Participant> readData(String filePath) throws DataException {
 	   try {
 		  File src = new File(filePath);
-		  return mapper.readValue(src, mapper.getTypeFactory()
+		  return objectMapper.readValue(src, objectMapper.getTypeFactory()
 				.constructCollectionType(List.class, Participant.class));
 	   } catch (IOException e) {
 		  throw new DataException(e.getMessage(), e);
