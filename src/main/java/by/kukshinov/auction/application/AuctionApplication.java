@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 
 public class AuctionApplication {
-
-
     public static final String ITEMS_JSON = "src/json/items.json";
     public static final String PARTICIPANTS_JSON = "src/json/participants.json";
 

@@ -11,13 +11,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Auction {
-    //todo method for betting + executor service + while for every lot with exe service
-    private static Auction instance;
     private static final Lock LOCKER = new ReentrantLock();
-    Semaphore semaphore = new Semaphore(1);
+    private static Auction instance;
 
     private List<Participant> participants;
     private List<Item> items;
+    private Participant currentItemOwner;
     private Item currentItem;
 
 
@@ -60,7 +59,7 @@ public class Auction {
 
     public void setNewItemPrice(BigDecimal newItemPrice, Participant currentItemOwner) {
 	   currentItem.setPrice(newItemPrice);
-	   currentItem.setItemOwner(currentItemOwner);
+	   this.currentItemOwner = currentItemOwner;
 	   priceUpdateNotify(currentItem);
     }
 
@@ -68,7 +67,6 @@ public class Auction {
 	   for (Participant participant : participants) {
 		  participant.updateCurrentItemPrice(updatedCurrentItem);
 	   }
-
     }
 
     public void startAuctionBidding() {
@@ -79,14 +77,13 @@ public class Auction {
 		  for (Item itemToBidFor : items) {
 			 currentItem = itemToBidFor;
 			 for (Participant participant : participants) {
-				participant.setSemaphore(semaphore);
 				participant.setAuction(this);
+				//replace init
 				service.execute(participant);
 			 }
 			 TimeUnit timeUnit = TimeUnit.SECONDS;
 			 timeUnit.sleep(5);
-			 System.out.println("Item " + currentItem + " is wun by " + currentItem
-				    .getItemOwner());
+			 System.out.println("Item " + currentItem + " is wun by " + currentItemOwner);
 		  }
 	   } catch (InterruptedException e) {
 		  e.printStackTrace();
@@ -95,5 +92,9 @@ public class Auction {
 			 service.shutdown();
 		  }
 	   }
+    }
+
+    public Participant getItemOwner() {
+	   return currentItemOwner;
     }
 }

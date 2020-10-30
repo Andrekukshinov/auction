@@ -1,18 +1,19 @@
 package by.kukshinov.auction.model;
 
 import java.math.BigDecimal;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
+import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Participant implements Runnable {
+    private static final Lock lock = new ReentrantLock();
     private static final BigDecimal THRESHOLD_CAPITAL_PERCENT = new BigDecimal("0.2");
     private long id;
     private BigDecimal myLastUpdatedPrice;
     private Item currentItem;
     private BigDecimal capital;
     private Auction auction;
-    private Semaphore semaphore;
-
+    //    private Semaphore semaphore;
     public Participant(long id, BigDecimal capital) {
 	   this.id = id;
 
@@ -28,13 +29,9 @@ public class Participant implements Runnable {
 	   boolean isDesired;
 	   do {
 		  //make a decision
-		  try {
-			 semaphore.acquire();
-		  } catch (InterruptedException e) {
-			 e.printStackTrace();
-		  }
-		  isDesired = makeDecisionOnBidding();
-		  semaphore.release();
+		  lock.lock();
+		  isDesired = makeDecisionAndBetIfOk();
+		  lock.unlock();
 	   } while (isDesired);
 	   String threadName = Thread.currentThread().getName();
 	   buyIfOwner();
@@ -43,17 +40,17 @@ public class Participant implements Runnable {
     }
 
     private void buyIfOwner() {
-	   Participant itemOwner = currentItem.getItemOwner();
+	   Participant itemOwner = auction.getItemOwner();
 	   if(this.equals(itemOwner)) {
 		  BigDecimal itemPrice = currentItem.getPrice();
 		  capital = capital.subtract(itemPrice);
 	   }
     }
 
-    private boolean makeDecisionOnBidding() {
+    private boolean makeDecisionAndBetIfOk() {
 	   boolean isDesired;
 	   currentItem = auction.getCurrentItem();
-	   isDesired = isDesired(currentItem);
+	   isDesired = isDesired();
 	   BigDecimal itemPrice = currentItem.getPrice();
 	   boolean isLastUpdatedByMe = itemPrice.equals(myLastUpdatedPrice);
 	   if (isDesired && !isLastUpdatedByMe) {
@@ -61,6 +58,11 @@ public class Participant implements Runnable {
 	  }
 	   return isDesired;
     }
+    private boolean isDesired() {
+	   Random randomDecision = new Random();
+	   return randomDecision.nextBoolean();
+    }
+
 
     public void updateCurrentItemPrice(Item currentItem) {
 	   this.currentItem = currentItem;
@@ -77,11 +79,6 @@ public class Participant implements Runnable {
 	   auction.setNewItemPrice(newPrice, this);
     }
 
-    private boolean isDesired(Item currentItem) {
-	   BigDecimal subtracted = getAvailableBetSize(currentItem);
-	   int compared = subtracted.compareTo(BigDecimal.ZERO);
-	   return compared > 0;
-    }
 
     private BigDecimal getAvailableBetSize(Item item) {
 	   BigDecimal itemPrice = item.getPrice();
@@ -113,9 +110,6 @@ public class Participant implements Runnable {
 	   this.auction = auction;
     }
 
-    public void setSemaphore(Semaphore semaphore) {
-	   this.semaphore = semaphore;
-    }
 
     @Override
     public boolean equals(Object o) {
