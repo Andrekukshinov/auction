@@ -14,17 +14,17 @@ public class ParticipantFileDataReaderTest {
     public static final String TEST_JSON_PARTICIPANTS = "src/test/resources/participants.json";
     public static final int FIRST_PARTICIPANT_ID = 1;
     public static final int SECOND_PARTICIPANT_ID = 2;
-    public static final BigDecimal FIRST_CAPITAL = new BigDecimal(23450);
-    public static final BigDecimal SECOND_CAPITAL = new BigDecimal(54455);
+    public static final String FIRST_NAME = "Van";
+    public static final String SECOND_NAME = "Dan";
 
 
     @Test
     public void testReadDataShouldReadDataAndReturnParticipantsList() throws DataException {
 	   ObjectMapper mapper = new ObjectMapper();
 	   Participant firstParticipant = new Participant(FIRST_PARTICIPANT_ID,
-			 FIRST_CAPITAL);
+			 FIRST_NAME);
 	   Participant secondParticipant = new Participant(SECOND_PARTICIPANT_ID,
-			 SECOND_CAPITAL);
+			 SECOND_NAME);
 	   List<Participant> expectedParticipants = Arrays
 			 .asList(firstParticipant, secondParticipant);
 	   ParticipantFileDataReader itemDataReader = new ParticipantFileDataReader(mapper);

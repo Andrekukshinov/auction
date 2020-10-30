@@ -7,17 +7,17 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Participant implements Runnable {
     private static final Lock lock = new ReentrantLock();
-    private static final BigDecimal THRESHOLD_CAPITAL_PERCENT = new BigDecimal("0.2");
+
     private long id;
+    private String participantName;
     private BigDecimal myLastUpdatedPrice;
     private Item currentItem;
-    private BigDecimal capital;
     private Auction auction;
-    //    private Semaphore semaphore;
-    public Participant(long id, BigDecimal capital) {
+
+    public Participant(long id, String participantName) {
 	   this.id = id;
 
-	   this.capital = capital;
+	   this.participantName = participantName;
     }
 
     public Participant() {
@@ -35,15 +35,13 @@ public class Participant implements Runnable {
 	   } while (isDesired);
 	   String threadName = Thread.currentThread().getName();
 	   buyIfOwner();
-	   System.out.println("Thread " + threadName + "'s capital is " + capital);
 	   System.out.println("Thread " + threadName + " is out for the lot...");
     }
 
     private void buyIfOwner() {
 	   Participant itemOwner = auction.getItemOwner();
-	   if(this.equals(itemOwner)) {
+	   if (this.equals(itemOwner)) {
 		  BigDecimal itemPrice = currentItem.getPrice();
-		  capital = capital.subtract(itemPrice);
 	   }
     }
 
@@ -54,15 +52,15 @@ public class Participant implements Runnable {
 	   BigDecimal itemPrice = currentItem.getPrice();
 	   boolean isLastUpdatedByMe = itemPrice.equals(myLastUpdatedPrice);
 	   if (isDesired && !isLastUpdatedByMe) {
-		bidForItem(currentItem);
-	  }
+		  bidForItem(currentItem);
+	   }
 	   return isDesired;
     }
+
     private boolean isDesired() {
 	   Random randomDecision = new Random();
 	   return randomDecision.nextBoolean();
     }
-
 
     public void updateCurrentItemPrice(Item currentItem) {
 	   this.currentItem = currentItem;
@@ -70,20 +68,13 @@ public class Participant implements Runnable {
 
     private void bidForItem(Item currentItem) {
 	   BigDecimal currentPrice = currentItem.getPrice();
-	   BigDecimal availableBetSize = getAvailableBetSize(currentItem);
+	   BigDecimal availableBetSize = BigDecimal.ONE;
 	   BigDecimal newPrice = currentPrice.add(availableBetSize);
 	   myLastUpdatedPrice = newPrice;
 	   String threadName = Thread.currentThread().getName();
 	   System.out.printf(" Thread %s raises price for %s to %s \n", threadName,
 			 currentItem, newPrice);
 	   auction.setNewItemPrice(newPrice, this);
-    }
-
-
-    private BigDecimal getAvailableBetSize(Item item) {
-	   BigDecimal itemPrice = item.getPrice();
-	   BigDecimal affordableBet = capital.multiply(THRESHOLD_CAPITAL_PERCENT);
-	   return affordableBet.subtract(itemPrice);
     }
 
     public long getId() {
@@ -94,13 +85,6 @@ public class Participant implements Runnable {
 	   this.id = id;
     }
 
-    public BigDecimal getCapital() {
-	   return capital;
-    }
-
-    public void setCapital(BigDecimal capital) {
-	   this.capital = capital;
-    }
 
     public Auction getAuction() {
 	   return auction;
@@ -110,6 +94,13 @@ public class Participant implements Runnable {
 	   this.auction = auction;
     }
 
+    public String getParticipantName() {
+	   return participantName;
+    }
+
+    public void setParticipantName(String participantName) {
+	   this.participantName = participantName;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -125,20 +116,18 @@ public class Participant implements Runnable {
 	   if (getId() != that.getId()) {
 		  return false;
 	   }
-	   return getCapital() != null ? getCapital().equals(that.getCapital()) : that
-			 .getCapital() == null;
+	   return participantName.equals(that.participantName);
     }
 
     @Override
     public int hashCode() {
 	   int result = (int) (getId() ^ (getId() >>> 32));
-	   result = 31 * result + (getCapital() != null ? getCapital().hashCode() : 0);
+	   result = 31 * result + participantName.hashCode();
 	   return result;
     }
 
     @Override
     public String toString() {
-	   return "Participant{" + "id=" + id + ", capital=" + capital + '}';
+	   return "Participant{" + "id=" + id + ", participantName='" + participantName + '\'' + '}';
     }
-
 }
