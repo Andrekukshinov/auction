@@ -6,7 +6,6 @@ public class Item {
     private long id;
     private String name;
     private BigDecimal price;
-    private Participant itemOwner;
 
     public Item(long id, String name, BigDecimal price) {
 	   this.id = id;
@@ -77,11 +76,4 @@ public class Item {
 	   return result;
     }
 
-    public void setItemOwner(Participant itemOwner) {
-	   this.itemOwner = itemOwner;
-    }
-
-    public Participant getItemOwner() {
-	   return itemOwner;
-    }
 }
