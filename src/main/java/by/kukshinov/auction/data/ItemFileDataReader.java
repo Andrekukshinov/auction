@@ -8,11 +8,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class ItemFileDataReader implements FileDataReader<Item> {
-    private final ObjectMapper objectMapper;
-
-    public ItemFileDataReader(ObjectMapper objectMapper) {
-	   this.objectMapper = objectMapper;
-    }
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public List<Item> readData(String filePath) throws DataException {

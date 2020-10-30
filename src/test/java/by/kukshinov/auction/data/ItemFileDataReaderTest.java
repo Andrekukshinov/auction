@@ -20,11 +20,10 @@ public class ItemFileDataReaderTest {
 
     @Test
     public void testReadDataShouldReturnListOfItems() throws DataException {
-        ObjectMapper mapper = new ObjectMapper();
         Item vase = new Item(FIRST_ITEM_ID, VASE, FIRST_PRICE);
         Item candle = new Item(SECOND_ITEM_ID, CANDLE, SECOND_PRICE);
         List<Item> expectedItems = Arrays.asList(vase, candle);
-        ItemFileDataReader itemDataReader = new ItemFileDataReader(mapper);
+        ItemFileDataReader itemDataReader = new ItemFileDataReader();
         List<Item> items = itemDataReader.readData(TEST_JSON_ITEMS);
         Assert.assertEquals(items, expectedItems);
     }

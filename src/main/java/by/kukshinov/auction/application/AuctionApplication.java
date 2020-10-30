@@ -17,9 +17,8 @@ public class AuctionApplication {
 
     public static void main(String[] args) throws DataException {
 	   Auction auction = Auction.getInstance();
-	   ObjectMapper objectMapper = new ObjectMapper();
-	   FileDataReader<Item> itemDataReader = new ItemFileDataReader(objectMapper);
-	   FileDataReader<Participant> participantFileDataReader = new ParticipantFileDataReader(objectMapper);
+	   FileDataReader<Item> itemDataReader = new ItemFileDataReader();
+	   FileDataReader<Participant> participantFileDataReader = new ParticipantFileDataReader();
 	   List<Item> expectedItems = itemDataReader.readData(ITEMS_JSON);
 	   List<Participant> expectedParticipants = participantFileDataReader.readData(PARTICIPANTS_JSON);
 	   auction.setParticipants(expectedParticipants);

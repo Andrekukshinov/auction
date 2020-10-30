@@ -10,11 +10,8 @@ import java.util.List;
 
 public class ParticipantFileDataReader implements FileDataReader<Participant> {
 
-    private final ObjectMapper mapper;
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-    public ParticipantFileDataReader(ObjectMapper mapper) {
-	   this.mapper = mapper;
-    }
 
     @Override
     public List<Participant> readData(String filePath) throws DataException {
