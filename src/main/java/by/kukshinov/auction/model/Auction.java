@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -25,13 +24,17 @@ public class Auction {
 
     public static Auction getInstance() {
 	   if (instance == null) {
-		  LOCKER.lock();
-		  Auction localInstance;
-		  if (instance == null) {
-			 localInstance = new Auction();
-			 instance = localInstance;
+		  try {
+			 LOCKER.lock();
+
+			 Auction localInstance;
+			 if (instance == null) {
+				localInstance = new Auction();
+				instance = localInstance;
+			 }
+		  } finally {
+			 LOCKER.unlock();
 		  }
-		  LOCKER.unlock();
 	   }
 	   return instance;
     }
@@ -83,7 +86,8 @@ public class Auction {
 			 }
 			 TimeUnit timeUnit = TimeUnit.SECONDS;
 			 timeUnit.sleep(5);
-			 System.out.println("Item " + currentItem + " is wun by " + currentItemOwner);
+			 System.out.println(
+				    "Item " + currentItem + " is wun by " + currentItemOwner);
 		  }
 	   } catch (InterruptedException e) {
 		  e.printStackTrace();
