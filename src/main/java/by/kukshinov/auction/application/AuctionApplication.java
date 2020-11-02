@@ -23,6 +23,5 @@ public class AuctionApplication {
 	   List<Participant> expectedParticipants = participantFileDataReader.readData(PARTICIPANTS_JSON);
 	   auction.setParticipants(expectedParticipants);
 	   auction.setItems(expectedItems);
-	   auction.startAuctionBidding();
     }
 }

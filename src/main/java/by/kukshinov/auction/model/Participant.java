@@ -11,7 +11,7 @@ public class Participant implements Runnable {
     private long id;
     private String participantName;
     private BigDecimal myLastUpdatedPrice;
-    private Item currentItem;
+    private ItemDTO currentItem;
     private Auction auction;
 
     public Participant(long id, String participantName) {
@@ -32,7 +32,7 @@ public class Participant implements Runnable {
 		  lock.lock();
 		  currentItem = auction.getCurrentItem();
 		  isDesired = isDesired();
-		  BigDecimal itemPrice = currentItem.getPrice();
+		  BigDecimal itemPrice = currentItem.getItemPrice();
 		  boolean isLastUpdatedByMe = itemPrice.equals(myLastUpdatedPrice);
 		  if (isDesired && !isLastUpdatedByMe) {
 			 bidForItem(currentItem);
@@ -40,15 +40,7 @@ public class Participant implements Runnable {
 		  lock.unlock();
 	   } while (isDesired);
 	   String threadName = Thread.currentThread().getName();
-	   buyIfOwner();
 	   System.out.println("Thread " + threadName + " is out for the lot...");
-    }
-
-    private void buyIfOwner() {
-	   Participant itemOwner = auction.getItemOwner();
-	   if (this.equals(itemOwner)) {
-		  BigDecimal itemPrice = currentItem.getPrice();
-	   }
     }
 
 
@@ -57,19 +49,17 @@ public class Participant implements Runnable {
 	   return randomDecision.nextBoolean();
     }
 
-    public void updateCurrentItemPrice(Item currentItem) {
-	   this.currentItem = currentItem;
+    public void updateCurrentItemPrice(BigDecimal itemPrice) {
+	   this.currentItem.setItemPrice(itemPrice);
     }
 
-    private void bidForItem(Item currentItem) {
-	   BigDecimal currentPrice = currentItem.getPrice();
-	   BigDecimal availableBetSize = BigDecimal.ONE;
-	   BigDecimal newPrice = currentPrice.add(availableBetSize);
-	   myLastUpdatedPrice = newPrice;
+    private void bidForItem(ItemDTO currentItem) {
+	   BigDecimal currentPrice = currentItem.getItemPrice();
+	   myLastUpdatedPrice = currentPrice.add(BigDecimal.ONE);
 	   String threadName = Thread.currentThread().getName();
 	   System.out.printf(" Thread %s raises price for %s to %s \n", threadName,
-			 currentItem, newPrice);
-	   auction.setNewItemPrice(newPrice, this);
+			 currentItem, myLastUpdatedPrice);
+	   auction.requestPriseRaise(myLastUpdatedPrice, this);
     }
 
     public long getId() {

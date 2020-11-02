@@ -56,11 +56,13 @@ public class Auction {
 	   this.items = items;
     }
 
-    public Item getCurrentItem() {
-	   return currentItem;
+    public ItemDTO getCurrentItem() {
+	   BigDecimal itemPrice = currentItem.getPrice();
+	   long id = currentItem.getId();
+	   return new ItemDTO(id, itemPrice);
     }
 
-    public void setNewItemPrice(BigDecimal newItemPrice, Participant currentItemOwner) {
+    public void requestPriseRaise(BigDecimal newItemPrice, Participant currentItemOwner) {
 	   currentItem.setPrice(newItemPrice);
 	   this.currentItemOwner = currentItemOwner;
 	   priceUpdateNotify(currentItem);
@@ -68,11 +70,20 @@ public class Auction {
 
     private void priceUpdateNotify(Item updatedCurrentItem) {
 	   for (Participant participant : participants) {
-		  participant.updateCurrentItemPrice(updatedCurrentItem);
+		  BigDecimal newItemPrice = updatedCurrentItem.getPrice();
+		  participant.updateCurrentItemPrice(newItemPrice);
 	   }
     }
 
     public Participant getItemOwner() {
 	   return currentItemOwner;
+    }
+
+    public Participant getCurrentItemOwner() {
+	   return currentItemOwner;
+    }
+
+    public void setCurrentItem(Item currentItem) {
+	   this.currentItem = currentItem;
     }
 }
