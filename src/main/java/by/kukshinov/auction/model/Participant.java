@@ -30,7 +30,13 @@ public class Participant implements Runnable {
 	   do {
 		  //make a decision
 		  lock.lock();
-		  isDesired = makeDecisionAndBetIfOk();
+		  currentItem = auction.getCurrentItem();
+		  isDesired = isDesired();
+		  BigDecimal itemPrice = currentItem.getPrice();
+		  boolean isLastUpdatedByMe = itemPrice.equals(myLastUpdatedPrice);
+		  if (isDesired && !isLastUpdatedByMe) {
+			 bidForItem(currentItem);
+		  }
 		  lock.unlock();
 	   } while (isDesired);
 	   String threadName = Thread.currentThread().getName();
@@ -45,17 +51,6 @@ public class Participant implements Runnable {
 	   }
     }
 
-    private boolean makeDecisionAndBetIfOk() {
-	   boolean isDesired;
-	   currentItem = auction.getCurrentItem();
-	   isDesired = isDesired();
-	   BigDecimal itemPrice = currentItem.getPrice();
-	   boolean isLastUpdatedByMe = itemPrice.equals(myLastUpdatedPrice);
-	   if (isDesired && !isLastUpdatedByMe) {
-		  bidForItem(currentItem);
-	   }
-	   return isDesired;
-    }
 
     private boolean isDesired() {
 	   Random randomDecision = new Random();

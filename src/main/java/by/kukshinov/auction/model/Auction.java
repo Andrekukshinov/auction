@@ -72,32 +72,6 @@ public class Auction {
 	   }
     }
 
-    public void startAuctionBidding() {
-	   int size = participants.size();
-	   ExecutorService service = null;
-	   try {
-		  service = Executors.newFixedThreadPool(size);
-		  for (Item itemToBidFor : items) {
-			 currentItem = itemToBidFor;
-			 for (Participant participant : participants) {
-				participant.setAuction(this);
-				//replace init
-				service.execute(participant);
-			 }
-			 TimeUnit timeUnit = TimeUnit.SECONDS;
-			 timeUnit.sleep(5);
-			 System.out.println(
-				    "Item " + currentItem + " is wun by " + currentItemOwner);
-		  }
-	   } catch (InterruptedException e) {
-		  e.printStackTrace();
-	   } finally {
-		  if (service != null) {
-			 service.shutdown();
-		  }
-	   }
-    }
-
     public Participant getItemOwner() {
 	   return currentItemOwner;
     }
