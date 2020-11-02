@@ -2,6 +2,7 @@ package by.kukshinov.auction.model;
 
 import java.math.BigDecimal;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -29,6 +30,12 @@ public class Participant implements Runnable {
 	   boolean isDesired;
 	   do {
 		  //make a decision
+		  TimeUnit waitTimer = TimeUnit.MILLISECONDS;
+		  try {
+			 waitTimer.sleep(100);
+		  } catch (InterruptedException e) {
+			 e.printStackTrace();
+		  }
 		  lock.lock();
 		  isDesired = isDesired();
 		  if (isDesired && !isLastUpdatedByMe()) {
