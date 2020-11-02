@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Auction {
     private static final Lock LOCKER = new ReentrantLock();
-    public static final String ITEMS_JSON = "src/json/items.json";
+    private static final String ITEMS_JSON = "src/json/items.json";
 
     private static Auction instance;
 
