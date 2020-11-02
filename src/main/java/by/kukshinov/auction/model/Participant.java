@@ -38,10 +38,9 @@ public class Participant implements Runnable {
 		  }
 		  lock.lock();
 		  currentItem = auction.getCurrentItem();
-		  isDesired = isDesired();
 		  BigDecimal itemPrice = currentItem.getItemPrice();
-		  boolean isLastUpdatedByMe = itemPrice.equals(myLastUpdatedPrice);
-		  if (isDesired && !isLastUpdatedByMe) {
+		  isDesired = isDesired();
+		  if (isDesired && ! itemPrice.equals(myLastUpdatedPrice)) {
 			 bidForItem(currentItem);
 		  }
 		  lock.unlock();
