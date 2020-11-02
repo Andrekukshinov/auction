@@ -1,5 +1,8 @@
 package by.kukshinov.auction.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 
 public class Item {
@@ -7,13 +10,14 @@ public class Item {
     private String name;
     private BigDecimal price;
 
-    public Item(long id, String name, BigDecimal price) {
+    @JsonCreator()
+    public Item(
+		  @JsonProperty("id") long id,
+		  @JsonProperty("name") String name,
+		  @JsonProperty("price") BigDecimal price) {
 	   this.id = id;
 	   this.name = name;
 	   this.price = price;
-    }
-
-    public Item() {
     }
 
     public void setName(String name) {

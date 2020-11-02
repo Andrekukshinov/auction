@@ -1,5 +1,8 @@
 package by.kukshinov.auction.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -15,13 +18,12 @@ public class Participant implements Runnable {
     private ItemDTO currentItem;
     private Auction auction;
 
-    public Participant(long id, String participantName) {
+    @JsonCreator
+    public Participant(
+		  @JsonProperty("id") long id,
+		  @JsonProperty("participantName") String participantName) {
 	   this.id = id;
-
 	   this.participantName = participantName;
-    }
-
-    public Participant() {
     }
 
 
@@ -40,7 +42,7 @@ public class Participant implements Runnable {
 		  currentItem = auction.getCurrentItem();
 		  BigDecimal itemPrice = currentItem.getItemPrice();
 		  isDesired = isDesired();
-		  if (isDesired && ! itemPrice.equals(myLastUpdatedPrice)) {
+		  if (isDesired && !itemPrice.equals(myLastUpdatedPrice)) {
 			 bidForItem(currentItem);
 		  }
 		  lock.unlock();
