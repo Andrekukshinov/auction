@@ -32,7 +32,7 @@ public class Participant implements Runnable {
 		  //make a decision
 		  TimeUnit waitTimer = TimeUnit.MICROSECONDS;
 		  try {
-			 waitTimer.sleep(100);
+			 waitTimer.sleep(10);
 		  } catch (InterruptedException e) {
 			 e.printStackTrace();
 		  }
