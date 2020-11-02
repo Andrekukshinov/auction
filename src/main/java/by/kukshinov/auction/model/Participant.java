@@ -2,6 +2,7 @@ package by.kukshinov.auction.model;
 
 import java.math.BigDecimal;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -29,6 +30,12 @@ public class Participant implements Runnable {
 	   boolean isDesired;
 	   do {
 		  //make a decision
+		  TimeUnit waitTimer = TimeUnit.MICROSECONDS;
+		  try {
+			 waitTimer.sleep(100);
+		  } catch (InterruptedException e) {
+			 e.printStackTrace();
+		  }
 		  lock.lock();
 		  currentItem = auction.getCurrentItem();
 		  isDesired = isDesired();
@@ -46,19 +53,17 @@ public class Participant implements Runnable {
 
     private boolean isDesired() {
 	   Random randomDecision = new Random();
-	   return randomDecision.nextBoolean();
+	   int chance = randomDecision.nextInt(100);
+	   return chance > 5;
     }
 
-    public void updateCurrentItemPrice(BigDecimal itemPrice) {
-	   this.currentItem.setItemPrice(itemPrice);
+    public void updateCurrentItemPrice(ItemDTO currentItem) {
+	   this.currentItem = currentItem;
     }
 
     private void bidForItem(ItemDTO currentItem) {
 	   BigDecimal currentPrice = currentItem.getItemPrice();
 	   myLastUpdatedPrice = currentPrice.add(BigDecimal.ONE);
-	   String threadName = Thread.currentThread().getName();
-	   System.out.printf(" Thread %s raises price for %s to %s \n", threadName,
-			 currentItem, myLastUpdatedPrice);
 	   auction.requestPriseRaise(myLastUpdatedPrice, this);
     }
 

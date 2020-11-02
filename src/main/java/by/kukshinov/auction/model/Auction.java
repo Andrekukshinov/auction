@@ -1,5 +1,8 @@
 package by.kukshinov.auction.model;
 
+import by.kukshinov.auction.data.DataException;
+import by.kukshinov.auction.data.ItemFileDataReader;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +14,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Auction {
     private static final Lock LOCKER = new ReentrantLock();
+    public static final String ITEMS_JSON = "src/json/items.json";
+
     private static Auction instance;
 
     private List<Participant> participants;
@@ -31,7 +36,10 @@ public class Auction {
 			 if (instance == null) {
 				localInstance = new Auction();
 				instance = localInstance;
+				instance.items = new ItemFileDataReader().readData(ITEMS_JSON);
 			 }
+		  } catch (DataException e) {
+		      //logger
 		  } finally {
 			 LOCKER.unlock();
 		  }
@@ -65,13 +73,15 @@ public class Auction {
     public void requestPriseRaise(BigDecimal newItemPrice, Participant currentItemOwner) {
 	   currentItem.setPrice(newItemPrice);
 	   this.currentItemOwner = currentItemOwner;
-	   priceUpdateNotify(currentItem);
+	   System.out.printf(" Participant %s raises price for %s to %s \n", currentItemOwner,
+			 currentItem, currentItem.getPrice());
+	   priceUpdateNotify();
     }
 
-    private void priceUpdateNotify(Item updatedCurrentItem) {
+    private void priceUpdateNotify() {
 	   for (Participant participant : participants) {
-		  BigDecimal newItemPrice = updatedCurrentItem.getPrice();
-		  participant.updateCurrentItemPrice(newItemPrice);
+		  ItemDTO forUser = new ItemDTO(currentItem.getId(), currentItem.getPrice());
+		  participant.updateCurrentItemPrice(forUser);
 	   }
     }
 
