@@ -9,11 +9,11 @@ public class Participant implements Runnable {
     private static final Lock lock = new ReentrantLock();
     private static final BigDecimal THRESHOLD_CAPITAL_PERCENT = new BigDecimal("0.2");
     private long id;
-    private BigDecimal myLastUpdatedPrice;
-    private Item currentItem;
+    private ItemDTO itemData;
+    private ItemDTO lastMyUpdatedItemData;
     private BigDecimal capital;
     private Auction auction;
-    //    private Semaphore semaphore;
+
     public Participant(long id, BigDecimal capital) {
 	   this.id = id;
 
@@ -30,7 +30,10 @@ public class Participant implements Runnable {
 	   do {
 		  //make a decision
 		  lock.lock();
-		  isDesired = makeDecisionAndBetIfOk();
+		  isDesired = isDesired();
+		  if (isDesired && !isLastUpdatedByMe()) {
+			 bidForItem(itemData);
+		  }
 		  lock.unlock();
 	   } while (isDesired);
 	   String threadName = Thread.currentThread().getName();
@@ -39,49 +42,45 @@ public class Participant implements Runnable {
 	   System.out.println("Thread " + threadName + " is out for the lot...");
     }
 
+    private boolean isLastUpdatedByMe() {
+	   itemData = auction.getCurrentItem();
+	   if (lastMyUpdatedItemData == null) {
+		  return false;
+	   }
+	   BigDecimal itemPrice = itemData.getItemPrice();
+	   BigDecimal myLastUpdatedPrice = lastMyUpdatedItemData.getItemPrice();
+	   return itemPrice.equals(myLastUpdatedPrice);
+    }
+
     private void buyIfOwner() {
 	   Participant itemOwner = auction.getItemOwner();
-	   if(this.equals(itemOwner)) {
-		  BigDecimal itemPrice = currentItem.getPrice();
+	   if (this.equals(itemOwner)) {
+		  BigDecimal itemPrice = itemData.getItemPrice();
 		  capital = capital.subtract(itemPrice);
 	   }
     }
 
-    private boolean makeDecisionAndBetIfOk() {
-	   boolean isDesired;
-	   currentItem = auction.getCurrentItem();
-	   isDesired = isDesired();
-	   BigDecimal itemPrice = currentItem.getPrice();
-	   boolean isLastUpdatedByMe = itemPrice.equals(myLastUpdatedPrice);
-	   if (isDesired && !isLastUpdatedByMe) {
-		bidForItem(currentItem);
-	  }
-	   return isDesired;
-    }
     private boolean isDesired() {
 	   Random randomDecision = new Random();
 	   return randomDecision.nextBoolean();
     }
 
 
-    public void updateCurrentItemPrice(Item currentItem) {
-	   this.currentItem = currentItem;
+    public void updateCurrentItemPrice(ItemDTO currentItem) {
+	   this.itemData = currentItem;
     }
 
-    private void bidForItem(Item currentItem) {
-	   BigDecimal currentPrice = currentItem.getPrice();
-	   BigDecimal availableBetSize = getAvailableBetSize(currentItem);
+    private void bidForItem(ItemDTO currentItem) {
+	   BigDecimal currentPrice = currentItem.getItemPrice();
+	   BigDecimal availableBetSize = getAvailableBetSize(itemData);
 	   BigDecimal newPrice = currentPrice.add(availableBetSize);
-	   myLastUpdatedPrice = newPrice;
-	   String threadName = Thread.currentThread().getName();
-	   System.out.printf(" Thread %s raises price for %s to %s \n", threadName,
-			 currentItem, newPrice);
-	   auction.setNewItemPrice(newPrice, this);
+	   lastMyUpdatedItemData = new ItemDTO(currentItem.getItemId(), newPrice);
+	   auction.requestPriseRaise(lastMyUpdatedItemData, this);
     }
 
 
-    private BigDecimal getAvailableBetSize(Item item) {
-	   BigDecimal itemPrice = item.getPrice();
+    private BigDecimal getAvailableBetSize(ItemDTO item) {
+	   BigDecimal itemPrice = item.getItemPrice();
 	   BigDecimal affordableBet = capital.multiply(THRESHOLD_CAPITAL_PERCENT);
 	   return affordableBet.subtract(itemPrice);
     }
@@ -109,7 +108,7 @@ public class Participant implements Runnable {
     public void setAuction(Auction auction) {
 	   this.auction = auction;
     }
-
+//8509
 
     @Override
     public boolean equals(Object o) {
