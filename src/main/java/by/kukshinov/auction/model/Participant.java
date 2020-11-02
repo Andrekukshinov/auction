@@ -2,6 +2,8 @@ package by.kukshinov.auction.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.math.BigDecimal;
 import java.util.Random;
@@ -11,6 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Participant implements Runnable {
     private static final Lock lock = new ReentrantLock();
+    private static final Logger LOGGER =  LogManager.getLogger();
 
     private long id;
     private String participantName;
@@ -36,7 +39,7 @@ public class Participant implements Runnable {
 		  try {
 			 waitTimer.sleep(10);
 		  } catch (InterruptedException e) {
-			 e.printStackTrace();
+		      LOGGER.error(e.getMessage(), e);
 		  }
 		  lock.lock();
 		  currentItem = auction.getCurrentItem();
@@ -48,7 +51,7 @@ public class Participant implements Runnable {
 		  lock.unlock();
 	   } while (isDesired);
 	   String threadName = Thread.currentThread().getName();
-	   System.out.println("Thread " + threadName + " is out for the lot...");
+	   LOGGER.info("Thread " + threadName + " is out for the lot...");
     }
 
 

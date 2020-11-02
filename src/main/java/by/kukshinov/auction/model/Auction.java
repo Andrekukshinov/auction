@@ -2,6 +2,8 @@ package by.kukshinov.auction.model;
 
 import by.kukshinov.auction.data.DataException;
 import by.kukshinov.auction.data.ItemFileDataReader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Auction {
     private static final Lock LOCKER = new ReentrantLock();
     private static final String ITEMS_JSON = "src/json/items.json";
+    private static final Logger LOGGER =  LogManager.getLogger();
 
     private static Auction instance;
 
@@ -40,6 +43,7 @@ public class Auction {
 			 }
 		  } catch (DataException e) {
 		      //logger
+			 LOGGER.error(e.getMessage(), e);
 		  } finally {
 			 LOCKER.unlock();
 		  }
@@ -73,8 +77,9 @@ public class Auction {
     public void requestPriseRaise(BigDecimal newItemPrice, Participant currentItemOwner) {
 	   currentItem.setPrice(newItemPrice);
 	   this.currentItemOwner = currentItemOwner;
-	   System.out.printf(" Participant %s raises price for %s to %s \n", currentItemOwner,
-			 currentItem, currentItem.getPrice());
+	   String s = String.format(" Participant %s raises price for %s to %s \n", currentItemOwner,
+	   currentItem, currentItem.getPrice());
+	   LOGGER.info(s);
 	   priceUpdateNotify();
     }
 
